@@ -15,11 +15,11 @@
              88 ABEND                         VALUE 'F'.
              88 PCB-ERROR                     VALUE 'P'.
              88 AIB-ERROR                     VALUE 'A'.
-       01  TB-HEX-KODER.
+       01  TB-HEX-CODES.
          05  TB-TABLE-RETURNCODES.
            10  HEX-0000             PIC X(04)       VALUE X'00000000'.
            10                       PIC X(04)       VALUE '0000'.
-           10  HEX-000C             PIC X(04)       VALUE a X'0000000C'.
+           10  HEX-000C             PIC X(04)       VALUE X'0000000C'.
            10                       PIC X(04)       VALUE '000C'.
            10  HEX-0100             PIC X(04)       VALUE X'00000100'.
            10                       PIC X(04)       VALUE '0100'.
@@ -44,18 +44,18 @@
                                                 INDEXED BY
                                                         TABLE-IX
                                                         TABLE-IX-START.
-               15 TB-RETKOD         PIC X(04).
-               15 TB-RETKOD-CHAR    PIC X(04).
+               15 TB-RETCODE         PIC X(04).
+               15 TB-RETCODE-CHAR    PIC X(04).
        01  WORKAREAS.
       *----------------------------------------------------------------
-      *     NOTIFICATIONAREA
+      *     MESSAGE AREA
       *----------------------------------------------------------------
-         05  NOTIFICATIONAREA.
+         05  MESSAGEAREA.
            10  MODULEDESCRIPTION    PIC X(30).
            10  MODULEAREA.
              15  MODULENAME         PIC X(8).
-             15  NOTIFICATION-TAB.
-               20  NOTIFICATIONTEXT OCCURS 17 TIMES
+             15  MESSAGE-TAB.
+               20  MESSAGETEXT OCCURS 5 TIMES
                                     PIC X(72).
       *----------------------------------------------------------------
       *     A I B  -  A R E A
@@ -86,7 +86,7 @@
            05 INQY-TYPE              PIC X(8).
            05 INQYENV-LENGTH         PIC S9(5) COMP.
       *
-       01  ANSWER.
+       01  RESPONSE.
            05 INQYENV-RETURNCODE     PIC 9(0008) COMP.
            05 INQYENV-REASONCODE     PIC 9(0008) COMP.
            05 AA-INQY.
@@ -114,13 +114,13 @@
            05  FILLER       PICTURE X(20).
       
        PROCEDURE DIVISION USING  REQUEST
-                                 ANSWER.
+                                 RESPONSE.
       *-----------------------------------------------------------------
       *    A-MAINSECTION
       *-----------------------------------------------------------------
        A-MAINSECTION SECTION.
       
-           PERFORM INITIATE-NOTIAREA
+           PERFORM  INITIATE-MSGAREA
       
            PERFORM INQ-CALL
       
@@ -130,7 +130,7 @@
       *-----------------------------------------------------
       *    INITIATE MESSAGE AREA
       *-----------------------------------------------------
-       INITIATE-NOTIAREA SECTION.
+       INITIATE-MSGAREA SECTION.
            MOVE 'PERFORM INQ CALL TO IMS'   TO MODULEDESCRIPTION
            MOVE 'IMSINQY'                   TO MODULENAME
            CONTINUE.
@@ -183,7 +183,7 @@
            WHEN PCB-ERROR
               STRING
                'IMS-RETURNCODE   : ' IO-CODE
-               DELIMITED BY SIZE INTO NOTIFICATIONTEXT(5)
+               DELIMITED BY SIZE INTO MESSAGETEXT(5)
               END-STRING
       
       *-----------------------------------------------------------------
@@ -198,7 +198,7 @@
               AND AIB-REASON-CODE = HEX-000C
                  STRING
                   'FOR A SMALL OUTPUT AREA                       '
-                   DELIMITED BY SIZE INTO NOTIFICATIONTEXT(2)
+                   DELIMITED BY SIZE INTO MESSAGETEXT(2)
                  END-STRING
       
       *-----------------------------------------------------------------
@@ -208,7 +208,7 @@
               AND AIB-REASON-CODE = HEX-0208
                  STRING
                   'INVALID PCB NAME / NOT GENERATED IN PSB       '
-                   DELIMITED BY SIZE INTO NOTIFICATIONTEXT(2)
+                   DELIMITED BY SIZE INTO MESSAGETEXT(2)
                  END-STRING
       *-----------------------------------------------------------------
       *  OUTPUT AREA NOT DEFINED, NO DATA IN RETURN
@@ -217,7 +217,7 @@
               AND AIB-REASON-CODE = HEX-0610
                  STRING
                   'OUTPUT AREA NOT DEFINED, NO DATA IN RETURN    '
-                   DELIMITED BY SIZE INTO NOTIFICATIONTEXT(2)
+                   DELIMITED BY SIZE INTO MESSAGETEXT(2)
                  END-STRING
       
       *-----------------------------------------------------------------
@@ -227,7 +227,7 @@
               AND AIB-REASON-CODE = HEX-0210
                  STRING
                   'OUTPUT AREA LENGTH = 0, NO DATA IN RETURN  '
-                   DELIMITED BY SIZE INTO NOTIFICATIONTEXT(2)
+                   DELIMITED BY SIZE INTO MESSAGETEXT(2)
                  END-STRING
       
       *-----------------------------------------------------------------
@@ -237,7 +237,7 @@
               AND AIB-REASON-CODE = HEX-0218
                  STRING
                   'SUBFUNCTION UNKNOWN          '
-                   DELIMITED BY SIZE INTO NOTIFICATIONTEXT(2)
+                   DELIMITED BY SIZE INTO MESSAGETEXT(2)
                  END-STRING
               END-EVALUATE
       
@@ -246,19 +246,19 @@
       *-----------------------------------------------------------------
               STRING
                '   AIB-PCB-NAME      : ' AIB-PCB-NAME '.'
-                DELIMITED BY SIZE INTO NOTIFICATIONTEXT(3)
+                DELIMITED BY SIZE INTO MESSAGETEXT(3)
               END-STRING
       *-----------------------------------------------------------------
       *  AIB-RETURN CODE
       *-----------------------------------------------------------------
               SET TABLE-IX                TO +1
               PERFORM VARYING TABLE-IX FROM +1 BY +1
-                 UNTIL TB-RETKOD(TABLE-IX) = HIGH-VALUE
-                 OR TB-RETKOD(TABLE-IX) = AIB-REASON-CODE
+                 UNTIL TB-RETCODE(TABLE-IX) = HIGH-VALUE
+                 OR TB-RETCODE(TABLE-IX) = AIB-REASON-CODE
               END-PERFORM
               STRING
-               ' -  AIB-REASON-CODE   : '  TB-RETKOD-CHAR(TABLE-IX) '.'
-                DELIMITED BY SIZE INTO NOTIFICATIONTEXT(4)
+               ' -  AIB-REASON-CODE   : '  TB-RETCODE-CHAR(TABLE-IX) '.'
+                DELIMITED BY SIZE INTO MESSAGETEXT(4)
               END-STRING
       
       *-----------------------------------------------------------------
@@ -267,12 +267,12 @@
       
               SET TABLE-IX                TO +1
               PERFORM VARYING TABLE-IX FROM +1 BY +1
-                UNTIL TB-RETKOD(TABLE-IX) = HIGH-VALUE
-                OR TB-RETKOD(TABLE-IX) = AIB-RETURN-CODE
+                UNTIL TB-RETCODE(TABLE-IX) = HIGH-VALUE
+                OR TB-RETCODE(TABLE-IX) = AIB-RETURN-CODE
               END-PERFORM
               STRING
-               ' -  AIB-RETURN-CODE   : '  TB-RETKOD-CHAR(TABLE-IX) '.'
-                 DELIMITED BY SIZE INTO NOTIFICATIONTEXT(5)
+               ' -  AIB-RETURN-CODE   : '  TB-RETCODE-CHAR(TABLE-IX) '.'
+                 DELIMITED BY SIZE INTO MESSAGETEXT(5)
               END-STRING
            END-EVALUATE
       *
@@ -289,23 +289,12 @@
            ELSE
               DISPLAY MODULEDESCRIPTION
               DISPLAY MODULENAME
-              DISPLAY NOTIFICATIONTEXT (01)
-              DISPLAY NOTIFICATIONTEXT (02)
-              DISPLAY NOTIFICATIONTEXT (03)
-              DISPLAY NOTIFICATIONTEXT (04)
-              DISPLAY NOTIFICATIONTEXT (05)
-              DISPLAY NOTIFICATIONTEXT (06)
-              DISPLAY NOTIFICATIONTEXT (07)
-              DISPLAY NOTIFICATIONTEXT (08)
-              DISPLAY NOTIFICATIONTEXT (09)
-              DISPLAY NOTIFICATIONTEXT (10)
-              DISPLAY NOTIFICATIONTEXT (11)
-              DISPLAY NOTIFICATIONTEXT (12)
-              DISPLAY NOTIFICATIONTEXT (13)
-              DISPLAY NOTIFICATIONTEXT (14)
-              DISPLAY NOTIFICATIONTEXT (15)
-              DISPLAY NOTIFICATIONTEXT (16)
-              DISPLAY NOTIFICATIONTEXT (17)
+              DISPLAY MESSAGETEXT (01)
+              DISPLAY MESSAGETEXT (02)
+              DISPLAY MESSAGETEXT (03)
+              DISPLAY MESSAGETEXT (04)
+              DISPLAY MESSAGETEXT (05)
+
            END-IF
       *
            CONTINUE.
