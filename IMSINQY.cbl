@@ -15,7 +15,7 @@
              88 ABEND                         VALUE 'F'.
              88 PCB-ERROR                     VALUE 'P'.
              88 AIB-ERROR                     VALUE 'A'.
-       01  TB-HEX-KODER.
+       01  TB-HEX-CODES.
          05  TB-TABLE-RETURNCODES.
            10  HEX-0000             PIC X(04)       VALUE X'00000000'.
            10                       PIC X(04)       VALUE '0000'.
