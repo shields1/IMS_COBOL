@@ -1,5 +1,45 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID.     IMSINQY.
+      ******************************************************************
+      *                                                                 
+      *    MODULE      IMSINQY                                          
+      *                MPP AND BMP COMPATIBLE                           
+      *                SAMPLE IMS COBOL APPLICATION FOR A 'INQY' CALL  
+      *                                                                 
+      *    INPUT       N/A                                          
+      *                                                              
+      *    CODED       2022-02-08                                       
+      *                                                                 
+      *    CODED BY    ISAK SHIELDS                                     
+      *                                                                 
+      ******************************************************************
+      ******************************************************************
+      *
+      *    LIST OF AMENDMENTS                                           
+      *    DATE     BY       THE CHANGE REFERS                          
+      *                                                                 
+      *    000000   XXXXXX   YYYYYYYYYYYYYYY                            
+      *                                                                 
+      *                                                                 
+      ******************************************************************
+      ******************************************************************
+      *                                                                        
+      *    ROUTINE LIST                                                  
+      *                                                                 
+      *    A     = MAINROUTINE                                           
+      *    B     = INITIATION                                           
+      *    C     = IMS INQY CALL                                        
+      *    XB    = PRINT ERRORS                                         
+      *    Z     = EXIT                                                
+      *                                                                 
+      ******************************************************************
+      *                                                                 
+      *    MODULES CALLED
+      *                                                                 
+      *    AIBTDLI - IMS APPLICATION INTERFACE                        
+      *                                                                 
+      ******************************************************************
+
        ENVIRONMENT DIVISION.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
@@ -120,9 +160,9 @@
       *-----------------------------------------------------------------
        A-MAINSECTION SECTION.
       
-           PERFORM  INITIATE-MSGAREA
+           PERFORM B-INITIATE-MSGAREA
       
-           PERFORM INQ-CALL
+           PERFORM C-INQ-CALL
       
            PERFORM Z-EXIT
       
@@ -130,14 +170,14 @@
       *-----------------------------------------------------
       *    INITIATE MESSAGE AREA
       *-----------------------------------------------------
-       INITIATE-MSGAREA SECTION.
+       B-INITIATE-MSGAREA SECTION.
            MOVE 'PERFORM INQ CALL TO IMS'   TO MODULEDESCRIPTION
            MOVE 'IMSINQY'                   TO MODULENAME
            CONTINUE.
       *-----------------------------------------------------
       *    INQ CALL
       *-----------------------------------------------------
-       INQ-CALL SECTION.
+       C-INQ-CALL SECTION.
       *--------------------------------------------------------
            MOVE LENGTH OF AIB      TO AIB-LEN
            MOVE KK-ENVIRON         TO AIB-SUB-FUNC
@@ -172,13 +212,13 @@
       
               MOVE AIB-REASON-CODE      TO INQYENV-REASONCODE
               MOVE AIB-RETURN-CODE      TO INQYENV-RETURNCODE
-              PERFORM WRITE-IMS-INFO
+              PERFORM XB-WRITE-IMS-INFO
            END-IF
            CONTINUE.
       *----------------------------------------------------------------
       *    WRITE ERROR INFORMATION
       *-----------------------------------------------------------------
-       WRITE-IMS-INFO SECTION.
+       XB-WRITE-IMS-INFO SECTION.
            EVALUATE TRUE
            WHEN PCB-ERROR
               STRING
