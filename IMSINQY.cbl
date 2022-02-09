@@ -1,61 +1,60 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID.     IMSINQY.
       ******************************************************************
-      *                                                                 
-      *    MODULE      IMSINQY                                          
-      *                MPP AND BMP COMPATIBLE                           
-      *                SAMPLE IMS COBOL APPLICATION FOR A 'INQY' CALL  
-      *                                                                 
-      *    INPUT       N/A                                          
-      *                                                              
-      *    CODED       2022-02-08                                       
-      *                                                                 
-      *    CODED BY    ISAK SHIELDS                                     
-      *                                                                 
+      *
+      *    MODULE      IMSINQY
+      *                MPP AND BMP COMPATIBLE
+      *                SAMPLE IMS COBOL APPLICATION FOR A 'INQY' CALL
+      *
+      *    INPUT       N/A
+      *
+      *    CODED       2022-02-08
+      *
+      *    CODED BY    ISAK SHIELDS
+      *
       ******************************************************************
       ******************************************************************
       *
-      *    LIST OF AMENDMENTS                                           
-      *    DATE     BY       THE CHANGE REFERS                          
-      *                                                                 
-      *    000000   XXXXXX   YYYYYYYYYYYYYYY                            
-      *                                                                 
-      *                                                                 
+      *    LIST OF AMENDMENTS
+      *    DATE     BY       THE CHANGE REFERS
+      *
+      *    000000   XXXXXX   YYYYYYYYYYYYYYY
+      *
+      *
       ******************************************************************
       ******************************************************************
-      *                                                                        
-      *    ROUTINE LIST                                                  
-      *                                                                 
-      *    A     = MAINROUTINE                                           
-      *    B     = INITIATION                                           
-      *    C     = IMS INQY CALL                                        
-      *    XB    = PRINT ERRORS                                         
-      *    Z     = EXIT                                                
-      *                                                                 
+      *
+      *    ROUTINE LIST
+      *
+      *    A     = MAINROUTINE
+      *    B     = INITIATION
+      *    C     = IMS INQY CALL
+      *    XB    = PRINT ERRORS
+      *    Z     = EXIT
+      *
       ******************************************************************
-      *                                                                 
+      *
       *    MODULES CALLED
-      *                                                                 
-      *    AIBTDLI - IMS APPLICATION INTERFACE                        
-      *                                                                 
+      *
+      *    AIBTDLI - IMS APPLICATION INTERFACE
+      *
       ******************************************************************
-
        ENVIRONMENT DIVISION.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  FILLER                   PIC X(32)   VALUE
                                     'XXX MODUL IMSINQY START WSS XXX'.
-       01  KONSTANTER.
-           05 KK-INQY               PIC X(4)         VALUE 'INQY'.
-           05 KK-ENVIRON            PIC X(8)         VALUE 'ENVIRON'.
-           05 KK-IOPCB              PIC X(8)         VALUE 'IOPCB'.
+       01  CONSTANTS.
+           05 CC-INQY               PIC X(4)         VALUE 'INQY'.
+           05 CC-ENVIRON            PIC X(8)         VALUE 'ENVIRON'.
+           05 CC-IOPCB              PIC X(8)         VALUE 'IOPCB'.
        01  SWITCHES.
            05 SW-INDICATOR          PIC X     VALUE '0'.
-             88 ALL-OK                        VALUE '0'.
-             88 ABEND                         VALUE 'F'.
-             88 PCB-ERROR                     VALUE 'P'.
-             88 AIB-ERROR                     VALUE 'A'.
-       01  TB-HEX-CODES.
+             88 SW-ALL-OK                     VALUE '0'.
+             88 SW-ABEND                      VALUE 'F'.
+             88 SW-PCB-ERROR                  VALUE 'P'.
+             88 SW-AIB-ERROR                  VALUE 'A'.
+       01  TB-HEX-KODER.
          05  TB-TABLE-RETURNCODES.
            10  HEX-0000             PIC X(04)       VALUE X'00000000'.
            10                       PIC X(04)       VALUE '0000'.
@@ -84,18 +83,18 @@
                                                 INDEXED BY
                                                         TABLE-IX
                                                         TABLE-IX-START.
-               15 TB-RETCODE         PIC X(04).
-               15 TB-RETCODE-CHAR    PIC X(04).
+               15 TB-RETKOD         PIC X(04).
+               15 TB-RETKOD-CHAR    PIC X(04).
        01  WORKAREAS.
       *----------------------------------------------------------------
-      *     MESSAGE AREA
+      *     NOTIFICATIONAREA
       *----------------------------------------------------------------
-         05  MESSAGEAREA.
+         05  NOTIFICATIONAREA.
            10  MODULEDESCRIPTION    PIC X(30).
            10  MODULEAREA.
              15  MODULENAME         PIC X(8).
-             15  MESSAGE-TAB.
-               20  MESSAGETEXT OCCURS 5 TIMES
+             15  NOTIFICATION-TAB.
+               20  NOTIFICATIONTEXT OCCURS 17 TIMES
                                     PIC X(72).
       *----------------------------------------------------------------
       *     A I B  -  A R E A
@@ -160,9 +159,9 @@
       *-----------------------------------------------------------------
        A-MAINSECTION SECTION.
       
-           PERFORM B-INITIATE-MSGAREA
+           PERFORM INITIATE-NOTIAREA
       
-           PERFORM C-INQ-CALL
+           PERFORM INQ-CALL
       
            PERFORM Z-EXIT
       
@@ -170,21 +169,21 @@
       *-----------------------------------------------------
       *    INITIATE MESSAGE AREA
       *-----------------------------------------------------
-       B-INITIATE-MSGAREA SECTION.
+       INITIATE-NOTIAREA SECTION.
            MOVE 'PERFORM INQ CALL TO IMS'   TO MODULEDESCRIPTION
            MOVE 'IMSINQY'                   TO MODULENAME
            CONTINUE.
       *-----------------------------------------------------
       *    INQ CALL
       *-----------------------------------------------------
-       C-INQ-CALL SECTION.
+       INQ-CALL SECTION.
       *--------------------------------------------------------
            MOVE LENGTH OF AIB      TO AIB-LEN
-           MOVE KK-ENVIRON         TO AIB-SUB-FUNC
-           MOVE KK-IOPCB           TO AIB-PCB-NAME
+           MOVE CC-ENVIRON         TO AIB-SUB-FUNC
+           MOVE CC-IOPCB           TO AIB-PCB-NAME
            MOVE LENGTH OF AA-INQY  TO AIB-IOAREA-LENGTH
       *----
-           CALL 'AIBTDLI' USING  KK-INQY
+           CALL 'AIBTDLI' USING  CC-INQY
                                  AIB
                                  AA-INQY
       *----
@@ -205,31 +204,31 @@
            ELSE
               IF AIB-RETURN-CODE = HEX-0900
                  SET ADDRESS OF IOPCB TO AIB-PCB-PTR
-                 SET PCB-ERROR          TO TRUE
+                 SET SW-PCB-ERROR     TO TRUE
               ELSE
-                 SET AIB-ERROR          TO TRUE
+                 SET SW-AIB-ERROR     TO TRUE
               END-IF
       
-              MOVE AIB-REASON-CODE      TO INQYENV-REASONCODE
-              MOVE AIB-RETURN-CODE      TO INQYENV-RETURNCODE
-              PERFORM XB-WRITE-IMS-INFO
+              MOVE AIB-REASON-CODE    TO INQYENV-REASONCODE
+              MOVE AIB-RETURN-CODE    TO INQYENV-RETURNCODE
+              PERFORM WRITE-IMS-INFO
            END-IF
            CONTINUE.
       *----------------------------------------------------------------
       *    WRITE ERROR INFORMATION
       *-----------------------------------------------------------------
-       XB-WRITE-IMS-INFO SECTION.
+       WRITE-IMS-INFO SECTION.
            EVALUATE TRUE
-           WHEN PCB-ERROR
+           WHEN SW-PCB-ERROR
               STRING
                'IMS-RETURNCODE   : ' IO-CODE
-               DELIMITED BY SIZE INTO MESSAGETEXT(5)
+               DELIMITED BY SIZE INTO NOTIFICATIONTEXT(5)
               END-STRING
       
       *-----------------------------------------------------------------
       *   *** AIB ERROR ***
       *-----------------------------------------------------------------
-           WHEN AIB-ERROR
+           WHEN SW-AIB-ERROR
               EVALUATE TRUE
       *-----------------------------------------------------------------
       *  FOR A SMALL OUTPUT AREA
@@ -238,7 +237,7 @@
               AND AIB-REASON-CODE = HEX-000C
                  STRING
                   'FOR A SMALL OUTPUT AREA                       '
-                   DELIMITED BY SIZE INTO MESSAGETEXT(2)
+                   DELIMITED BY SIZE INTO NOTIFICATIONTEXT(2)
                  END-STRING
       
       *-----------------------------------------------------------------
@@ -248,7 +247,7 @@
               AND AIB-REASON-CODE = HEX-0208
                  STRING
                   'INVALID PCB NAME / NOT GENERATED IN PSB       '
-                   DELIMITED BY SIZE INTO MESSAGETEXT(2)
+                   DELIMITED BY SIZE INTO NOTIFICATIONTEXT(2)
                  END-STRING
       *-----------------------------------------------------------------
       *  OUTPUT AREA NOT DEFINED, NO DATA IN RETURN
@@ -257,7 +256,7 @@
               AND AIB-REASON-CODE = HEX-0610
                  STRING
                   'OUTPUT AREA NOT DEFINED, NO DATA IN RETURN    '
-                   DELIMITED BY SIZE INTO MESSAGETEXT(2)
+                   DELIMITED BY SIZE INTO NOTIFICATIONTEXT(2)
                  END-STRING
       
       *-----------------------------------------------------------------
@@ -267,7 +266,7 @@
               AND AIB-REASON-CODE = HEX-0210
                  STRING
                   'OUTPUT AREA LENGTH = 0, NO DATA IN RETURN  '
-                   DELIMITED BY SIZE INTO MESSAGETEXT(2)
+                   DELIMITED BY SIZE INTO NOTIFICATIONTEXT(2)
                  END-STRING
       
       *-----------------------------------------------------------------
@@ -277,7 +276,7 @@
               AND AIB-REASON-CODE = HEX-0218
                  STRING
                   'SUBFUNCTION UNKNOWN          '
-                   DELIMITED BY SIZE INTO MESSAGETEXT(2)
+                   DELIMITED BY SIZE INTO NOTIFICATIONTEXT(2)
                  END-STRING
               END-EVALUATE
       
@@ -286,19 +285,19 @@
       *-----------------------------------------------------------------
               STRING
                '   AIB-PCB-NAME      : ' AIB-PCB-NAME '.'
-                DELIMITED BY SIZE INTO MESSAGETEXT(3)
+                DELIMITED BY SIZE INTO NOTIFICATIONTEXT(3)
               END-STRING
       *-----------------------------------------------------------------
       *  AIB-RETURN CODE
       *-----------------------------------------------------------------
               SET TABLE-IX                TO +1
               PERFORM VARYING TABLE-IX FROM +1 BY +1
-                 UNTIL TB-RETCODE(TABLE-IX) = HIGH-VALUE
-                 OR TB-RETCODE(TABLE-IX) = AIB-REASON-CODE
+                 UNTIL TB-RETKOD(TABLE-IX) = HIGH-VALUE
+                 OR TB-RETKOD(TABLE-IX) = AIB-REASON-CODE
               END-PERFORM
               STRING
-               ' -  AIB-REASON-CODE   : '  TB-RETCODE-CHAR(TABLE-IX) '.'
-                DELIMITED BY SIZE INTO MESSAGETEXT(4)
+               ' -  AIB-REASON-CODE   : '  TB-RETKOD-CHAR(TABLE-IX) '.'
+                DELIMITED BY SIZE INTO NOTIFICATIONTEXT(4)
               END-STRING
       
       *-----------------------------------------------------------------
@@ -307,12 +306,12 @@
       
               SET TABLE-IX                TO +1
               PERFORM VARYING TABLE-IX FROM +1 BY +1
-                UNTIL TB-RETCODE(TABLE-IX) = HIGH-VALUE
-                OR TB-RETCODE(TABLE-IX) = AIB-RETURN-CODE
+                UNTIL TB-RETKOD(TABLE-IX) = HIGH-VALUE
+                OR TB-RETKOD(TABLE-IX) = AIB-RETURN-CODE
               END-PERFORM
               STRING
-               ' -  AIB-RETURN-CODE   : '  TB-RETCODE-CHAR(TABLE-IX) '.'
-                 DELIMITED BY SIZE INTO MESSAGETEXT(5)
+               ' -  AIB-RETURN-CODE   : '  TB-RETKOD-CHAR(TABLE-IX) '.'
+                 DELIMITED BY SIZE INTO NOTIFICATIONTEXT(5)
               END-STRING
            END-EVALUATE
       *
@@ -324,17 +323,28 @@
       ******************************************************************
        Z-EXIT SECTION.
       *
-           IF ALL-OK
+           IF SW-ALL-OK
               CONTINUE
            ELSE
               DISPLAY MODULEDESCRIPTION
               DISPLAY MODULENAME
-              DISPLAY MESSAGETEXT (01)
-              DISPLAY MESSAGETEXT (02)
-              DISPLAY MESSAGETEXT (03)
-              DISPLAY MESSAGETEXT (04)
-              DISPLAY MESSAGETEXT (05)
-
+              DISPLAY NOTIFICATIONTEXT (01)
+              DISPLAY NOTIFICATIONTEXT (02)
+              DISPLAY NOTIFICATIONTEXT (03)
+              DISPLAY NOTIFICATIONTEXT (04)
+              DISPLAY NOTIFICATIONTEXT (05)
+              DISPLAY NOTIFICATIONTEXT (06)
+              DISPLAY NOTIFICATIONTEXT (07)
+              DISPLAY NOTIFICATIONTEXT (08)
+              DISPLAY NOTIFICATIONTEXT (09)
+              DISPLAY NOTIFICATIONTEXT (10)
+              DISPLAY NOTIFICATIONTEXT (11)
+              DISPLAY NOTIFICATIONTEXT (12)
+              DISPLAY NOTIFICATIONTEXT (13)
+              DISPLAY NOTIFICATIONTEXT (14)
+              DISPLAY NOTIFICATIONTEXT (15)
+              DISPLAY NOTIFICATIONTEXT (16)
+              DISPLAY NOTIFICATIONTEXT (17)
            END-IF
       *
            CONTINUE.
