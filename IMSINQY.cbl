@@ -181,11 +181,11 @@
            MOVE LENGTH OF AIB      TO AIB-LEN
            MOVE CC-ENVIRON         TO AIB-SUB-FUNC
            MOVE CC-IOPCB           TO AIB-PCB-NAME
-           MOVE LENGTH OF AA-INQY  TO AIB-IOAREA-LENGTH
+           MOVE LENGTH OF INQY     TO AIB-IOAREA-LENGTH
       *----
            CALL 'AIBTDLI' USING  CC-INQY
                                  AIB
-                                 AA-INQY
+                                 INQY
       *----
            IF    AIB-RETURN-CODE = HEX-0000
            AND   AIB-REASON-CODE = HEX-0000
