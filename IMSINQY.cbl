@@ -155,28 +155,28 @@
        PROCEDURE DIVISION USING  REQUEST
                                  RESPONSE.
       *-----------------------------------------------------------------
-      *    A-MAINSECTION
+      *    A MAINSECTION
       *-----------------------------------------------------------------
        A-MAINSECTION SECTION.
       
-           PERFORM INITIATE-NOTIAREA
+           PERFORM B-INITIATE-NOTIAREA
       
-           PERFORM INQ-CALL
+           PERFORM C-INQ-CALL
       
            PERFORM Z-EXIT
       
            GOBACK.
       *-----------------------------------------------------
-      *    INITIATE MESSAGE AREA
+      *    B INITIATE MESSAGE AREA
       *-----------------------------------------------------
-       INITIATE-NOTIAREA SECTION.
+       B-INITIATE-NOTIAREA SECTION.
            MOVE 'PERFORM INQ CALL TO IMS'   TO MODULEDESCRIPTION
            MOVE 'IMSINQY'                   TO MODULENAME
            CONTINUE.
       *-----------------------------------------------------
-      *    INQ CALL
+      *    C INQ CALL
       *-----------------------------------------------------
-       INQ-CALL SECTION.
+       C-INQ-CALL SECTION.
       *--------------------------------------------------------
            MOVE LENGTH OF AIB      TO AIB-LEN
            MOVE CC-ENVIRON         TO AIB-SUB-FUNC
@@ -211,13 +211,13 @@
       
               MOVE AIB-REASON-CODE    TO INQYENV-REASONCODE
               MOVE AIB-RETURN-CODE    TO INQYENV-RETURNCODE
-              PERFORM WRITE-IMS-INFO
+              PERFORM XB-WRITE-IMS-INFO
            END-IF
            CONTINUE.
       *----------------------------------------------------------------
-      *    WRITE ERROR INFORMATION
+      *   XB WRITE ERROR INFORMATION
       *-----------------------------------------------------------------
-       WRITE-IMS-INFO SECTION.
+       XB-WRITE-IMS-INFO SECTION.
            EVALUATE TRUE
            WHEN SW-PCB-ERROR
               STRING
