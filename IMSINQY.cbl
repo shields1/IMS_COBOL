@@ -128,7 +128,7 @@
        01  RESPONSE.
            05 INQYENV-RETURNCODE     PIC 9(0008) COMP.
            05 INQYENV-REASONCODE     PIC 9(0008) COMP.
-           05 AA-INQY.
+           05 INQY.
              10 INQYENV-IMSID          PIC X(8).
              10 INQYENV-RELEASE-LVL    PIC S9(8)    COMP.
              10 INQYENV-C-REG-TYPE     PIC X(8).
