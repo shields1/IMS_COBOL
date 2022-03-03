@@ -186,6 +186,7 @@
            CALL 'AIBTDLI' USING  CC-INQY
                                  AIB
                                  INQY
+           END-CALL
       *----
            IF    AIB-RETURN-CODE = HEX-0000
            AND   AIB-REASON-CODE = HEX-0000
@@ -200,7 +201,6 @@
              DISPLAY 'USERID          : ' INQYENV-USERID
              DISPLAY 'GROUP-NAME      : ' INQYENV-GROUP-NAME
              DISPLAY 'INQYENV-APARM   : ' INQYENV-APARM
-             CONTINUE
            ELSE
               IF AIB-RETURN-CODE = HEX-0900
                  SET ADDRESS OF IOPCB TO AIB-PCB-PTR
