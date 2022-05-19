@@ -415,7 +415,7 @@
                      END-IF
                    WHEN OTHER
                      SET ADDRESS OF IOPCB TO AIB-PCB-PTR
-                     DISPLAY 'IMSMQ02 OVÄNTAD RETURKOD = ' STC-CODE
+                     DISPLAY 'IMSMQ02 UNEXPECTED RETURNCODE = ' STC-CODE
                END-EVALUATE
            CONTINUE.
       ******************************************************************
