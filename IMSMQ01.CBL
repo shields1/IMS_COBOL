@@ -50,9 +50,9 @@
       *
       ******************************************************************
       *
-      *    MODULER SOM ANROPAS
+      *    MODULES CALLED
       *
-      *    AIBTDLI - UTFÖR ANROP MOT IMS
+      *    AIBTDLI - IMS APPLICATION INTERFACE
       *    MQCONN  - CONNECT TO QUEUE MANAGER
       *    MQOPEN  - OPEN EXISTING MQ QUEUE
       *    MQGET   - GET MQ MESSAGE
