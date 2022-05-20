@@ -222,13 +222,13 @@
            END-CALL
       
            PERFORM X-AIB-CHECK
-           DISPLAY 'IMSMQ02 IMSGU OK' ' <' MQTMC '>'
-      
-           PERFORM DA-MQTMC-PARMS
+           IF ALL-OK
+              DISPLAY 'IMSMQ02 IMSGU OK' ' <' MQTMC '>'
+              PERFORM DA-MQTMC-PARMS
            
-           MOVE MQTMC-QNAME             TO MQOD-OBJECTNAME
-           PERFORM DB-MQ-CONN
-      
+              MOVE MQTMC-QNAME             TO MQOD-OBJECTNAME
+              PERFORM DB-MQ-CONN
+           END-IF           
       *
            DISPLAY 'IMSMQ02 AVSLUTAR RC ' STC-CODE
       *
@@ -304,9 +304,7 @@
            IF WMQ-COMPCODE = MQCC-OK
               DISPLAY 'IMSMQ02  MQOPEN OK'
               PERFORM DD-MQ-GET
-           END-IF
-      
-           IF WMQ-COMPCODE NOT = MQCC-OK
+           ELSE
               DISPLAY 'IMSMQ02  MQOPEN NOK'
               DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
               DISPLAY 'REASON:     ' WMQ-REASON
@@ -317,38 +315,35 @@
       *       ***  GET MQ MESSAGE
       *       **********************************************************
        DD-MQ-GET SECTION.
-           MOVE MQMI-NONE                TO MQMD-MSGID
-           MOVE MQCI-NONE                TO MQMD-CORRELID
+           PERFORM WITH TEST BEFORE UNTIL WMQ-COMPCODE = MQCC-FAILED
+              MOVE MQMI-NONE                TO MQMD-MSGID
+              MOVE MQCI-NONE                TO MQMD-CORRELID
       
-           COMPUTE MQGMO-OPTIONS      = MQGMO-ACCEPT-TRUNCATED-MSG +
-                                        MQGMO-CONVERT     +
-                                        MQGMO-NO-WAIT
+              COMPUTE MQGMO-OPTIONS      = MQGMO-ACCEPT-TRUNCATED-MSG +
+                                           MQGMO-CONVERT     +
+                                           MQGMO-NO-WAIT
       
-           CALL 'MQGET'  USING WMQ-HCONN
-                               WMQ-HOBJ
-                               MQMD
-                               MQGMO
-                               WMQ-BUFFLEN
-                               WMQ-MSG-BUFF
-                               WMQ-DATALEN
-                               WMQ-COMPCODE
-                               WMQ-REASON
-           END-CALL
-           IF WMQ-COMPCODE = MQCC-OK
-             DISPLAY 'IMSMQ02  MQGET OK' ' <' WMQ-MSG-BUFF '>'
-             PERFORM DF-MQ-CLOSE
-           END-IF
-      
-           IF WMQ-COMPCODE NOT = MQCC-OK
-              DISPLAY 'IMSMQ02  MQGET  NOK'
-              DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
-              DISPLAY 'REASON:     ' WMQ-REASON
-              IF WMQ-REASON = MQRC-NO-MSG-AVAILABLE
-                 DISPLAY 'IMSMQ02  MQ QUEUE EMPTY'
+              CALL 'MQGET'  USING WMQ-HCONN
+                                  WMQ-HOBJ
+                                  MQMD
+                                  MQGMO
+                                  MQ-BUFFLEN
+                                  WMQ-MSG-BUFF
+                                  WMQ-DATALEN
+                                  WMQ-COMPCODE
+                                  WMQ-REASON
+              END-CALL
+              IF WMQ-COMPCODE = MQCC-OK
+                 DISPLAY 'IMSMQ02  MQGET OK' ' <' WMQ-MSG-BUFF '>'
+              ELSE
+                 DISPLAY 'IMSMQ02  MQGET  NOK'
+                 DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
+                 DISPLAY 'REASON:     ' WMQ-REASON
+                 IF WMQ-REASON = MQRC-NO-MSG-AVAILABLE
+                    DISPLAY 'IMSMQ02  MQ QUEUE EMPTY'
+                 END-IF
               END-IF
-              PERFORM DF-MQ-CLOSE
-              PERFORM DG-MQ-DISC
-           END-IF
+           END-PERFORM
            CONTINUE.
       *       **********************************************************
       *       ***  CLOSE MQ QUEUE
@@ -364,10 +359,7 @@
                           END-CALL
            IF WMQ-COMPCODE = MQCC-OK
               DISPLAY 'IMSMQ02  MQCLOSE OK'
-              PERFORM DG-MQ-DISC
-           END-IF
-      
-           IF WMQ-COMPCODE NOT = MQCC-OK
+           ELSE
               DISPLAY 'IMSMQ02  MQCLOSE NOK'
               DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
               DISPLAY 'REASON:     ' WMQ-REASON
@@ -385,9 +377,7 @@
       
            IF WMQ-COMPCODE = MQCC-OK
               DISPLAY 'IMSMQ02  MQDISC  OK'
-           END-IF
-      
-           IF WMQ-COMPCODE NOT = MQCC-OK
+           ELSE
               DISPLAY 'IMSMQ02  MQDISC  NOK'
               DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
               DISPLAY 'REASON:     ' WMQ-REASON
@@ -424,5 +414,6 @@
       *
       ******************************************************************
        Z-EXIT SECTION.
-      
+           PERFORM DF-MQ-CLOSE
+           PERFORM DG-MQ-DISC      
            GOBACK.
