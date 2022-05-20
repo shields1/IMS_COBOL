@@ -290,9 +290,7 @@
       
            IF WMQ-COMPCODE = MQCC-OK
               DISPLAY 'IMSMQ01  MQCONN OK'
-           END-IF
-      
-           IF WMQ-COMPCODE NOT = MQCC-OK
+           ELSE
               DISPLAY 'IMSMQ01  MQCONN NOK'
               DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
               DISPLAY 'REASON:     ' WMQ-REASON
@@ -327,9 +325,7 @@
                     PERFORM DF-MQ-CLOSE
                     PERFORM DG-MQ-DISC
               END-EVALUATE
-           END-IF
-      
-           IF WMQ-COMPCODE NOT = MQCC-OK
+           ELSE
               DISPLAY 'IMSMQ01  MQOPEN NOK'
               DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
               DISPLAY 'REASON:     ' WMQ-REASON
@@ -349,7 +345,7 @@
            PERFORM VARYING LOOP-COUNT FROM 1 BY 1 UNTIL
                                       LOOP-COUNT >= INDATA2 + 1
                                       OR
-                                      WMQ-REASON = MQRC-NO-MSG-AVAILABLE
+                                      WMQ-COMPCODE = MQCC-FAILED
               CALL 'MQGET'  USING WMQ-HCONN
                                   WMQ-HOBJ
                                   MQMD
@@ -363,9 +359,7 @@
               IF WMQ-COMPCODE = MQCC-OK
                 DISPLAY 'IMSMQ01  MQGET OK' ' <' WMQ-MSG-BUFF '>'
                 MOVE WMQ-MSG-BUFF               TO OUTDATA
-              END-IF
-      
-              IF WMQ-COMPCODE NOT = MQCC-OK
+              ELSE
                  DISPLAY 'IMSMQ01  MQGET  NOK'
                  DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
                  DISPLAY 'REASON:     ' WMQ-REASON
@@ -394,6 +388,8 @@
       
            PERFORM VARYING LOOP-COUNT FROM 1 BY 1 UNTIL
                                            LOOP-COUNT >= INDATA2 + 1
+                                           OR
+                                           WMQ-COMPCODE = MQCC-FAILED
               CALL 'MQPUT'     USING WMQ-HCONN
                                      WMQ-HOBJ
                                      MQMD
@@ -406,9 +402,7 @@
               IF WMQ-COMPCODE = MQCC-OK
                 DISPLAY 'IMSMQ01  MQPUT  OK' ' <' WMQ-MSG-BUFF '>'
                 MOVE 'MQ PUT MQ PERFORMED' TO OUTDATA
-              END-IF
-      
-              IF WMQ-COMPCODE NOT = MQCC-OK
+              ELSE
                  DISPLAY 'IMSMQ01  MQPUT  NOK'
                  DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
                  DISPLAY 'REASON:     ' WMQ-REASON
@@ -432,10 +426,7 @@
                           END-CALL
            IF WMQ-COMPCODE = MQCC-OK
               DISPLAY 'IMSMQ01  MQCLOSE OK'
-           END-IF
-      
-      
-           IF WMQ-COMPCODE NOT = MQCC-OK
+           ELSE
               DISPLAY 'IMSMQ01  MQCLOSE NOK'
               DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
               DISPLAY 'REASON:     ' WMQ-REASON
@@ -453,9 +444,7 @@
       
            IF WMQ-COMPCODE = MQCC-OK
               DISPLAY 'IMSMQ01  MQDISC  OK'
-           END-IF
-      
-           IF WMQ-COMPCODE NOT = MQCC-OK
+           ELSE
               DISPLAY 'IMSMQ01  MQDISC  NOK'
               DISPLAY 'COMPCODE:   ' WMQ-COMPCODE
               DISPLAY 'REASON:     ' WMQ-REASON
